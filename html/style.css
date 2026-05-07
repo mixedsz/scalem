@@ -1,0 +1,361 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --accent:        #1A6BFF;
+    --accent-rgb:    26, 107, 255;
+    --panel-bg:      rgba(9, 13, 26, 0.60);
+    --panel-border:  rgba(255, 255, 255, 0.08);
+    --surface-2:     rgba(255, 255, 255, 0.04);
+    --track-bg:      rgba(255, 255, 255, 0.10);
+    --text-1:        #ffffff;
+    --text-2:        rgba(255, 255, 255, 0.40);
+    --text-3:        rgba(255, 255, 255, 0.20);
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: transparent;
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── PANEL ───────────────────────────────────────────────────────── */
+#scale-menu {
+    position: fixed;
+    right: 2.8vw;
+    top: 50%;
+    transform: translateY(-50%) translateX(0);
+    width: 318px;
+
+    background: var(--panel-bg);
+    backdrop-filter: blur(34px) saturate(160%);
+    -webkit-backdrop-filter: blur(34px) saturate(160%);
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    padding: 26px 24px 22px;
+
+    color: var(--text-1);
+    user-select: none;
+    overflow: hidden;
+
+    transition:
+        opacity   0.26s ease,
+        transform 0.34s cubic-bezier(0.34, 1.36, 0.64, 1);
+}
+
+/* Diagonal inner glow from top-left */
+#scale-menu::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        145deg,
+        rgba(var(--accent-rgb), 0.07) 0%,
+        transparent 50%
+    );
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Thin top-centre accent line */
+#scale-menu::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 52%;
+    height: 1.5px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--accent),
+        transparent
+    );
+    border-radius: 0 0 3px 3px;
+    opacity: 0.75;
+}
+
+/* All children sit above the pseudo-element overlays */
+#scale-menu > * { position: relative; z-index: 1; }
+
+/* Open / close state */
+#scale-menu.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-50%) translateX(28px);
+}
+
+#scale-menu.visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* ── HEADER ──────────────────────────────────────────────────────── */
+.menu-header {
+    margin-bottom: 20px;
+}
+
+.header-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.header-sub {
+    font-size: 11.5px;
+    font-weight: 400;
+    color: var(--text-2);
+    line-height: 1.4;
+}
+
+/* ── HEIGHT DISPLAY ──────────────────────────────────────────────── */
+.height-display {
+    text-align: center;
+    padding: 8px 0 16px;
+    margin-bottom: 16px;
+}
+
+.height-imperial {
+    font-size: 60px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -3px;
+    color: var(--accent);
+    text-shadow:
+        0 0 30px rgba(var(--accent-rgb), 0.28),
+        0 0 60px rgba(var(--accent-rgb), 0.12);
+    transition: text-shadow 0.2s ease;
+}
+
+.height-imperial.pulse {
+    text-shadow:
+        0 0 40px rgba(var(--accent-rgb), 0.60),
+        0 0 80px rgba(var(--accent-rgb), 0.25);
+}
+
+.height-metric {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    letter-spacing: 0.09em;
+    margin-top: 7px;
+}
+
+/* ── STATS ROW ───────────────────────────────────────────────────── */
+.stats-row {
+    display: flex;
+    align-items: center;
+    background: var(--surface-2);
+    border: 1px solid var(--panel-border);
+    border-radius: 11px;
+    padding: 12px 0;
+    margin-bottom: 22px;
+}
+
+.stat-box {
+    flex: 1;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 16.5px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 5px;
+    letter-spacing: 0.01em;
+}
+
+.stat-label {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.17em;
+    color: var(--text-2);
+    text-transform: uppercase;
+}
+
+.stat-sep {
+    width: 1px;
+    height: 28px;
+    background: var(--panel-border);
+    flex-shrink: 0;
+}
+
+/* ── SLIDER SECTION ──────────────────────────────────────────────── */
+.slider-section {
+    margin-bottom: 20px;
+}
+
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.slider-label {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 0.20em;
+    color: var(--text-2);
+    text-transform: uppercase;
+}
+
+.slider-range-label {
+    font-size: 8.5px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.05em;
+}
+
+.slider-wrap {
+    position: relative;
+    padding: 6px 0;
+}
+
+/* Default-height tick mark below slider thumb track */
+.default-tick {
+    position: absolute;
+    bottom: -4px;
+    width: 2px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 1px;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+/* ─ Range input ─ */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    height: 4px;
+    border-radius: 99px;
+    outline: none;
+    cursor: pointer;
+    /* --fill is updated via JS */
+    background: linear-gradient(
+        to right,
+        var(--accent) var(--fill, 50%),
+        var(--track-bg) var(--fill, 50%)
+    );
+    transition: background 0s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    box-shadow:
+        0 0 0 3px rgba(var(--accent-rgb), 0.30),
+        0 2px 10px rgba(0, 0, 0, 0.50);
+    transition:
+        box-shadow 0.18s ease,
+        transform  0.14s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow:
+        0 0 0 5px rgba(var(--accent-rgb), 0.38),
+        0 2px 12px rgba(0, 0, 0, 0.55);
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+    box-shadow:
+        0 0 0 6px rgba(var(--accent-rgb), 0.22),
+        0 2px 8px rgba(0, 0, 0, 0.55);
+    transform: scale(0.90);
+}
+
+.slider-ticks {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+}
+
+.slider-ticks span {
+    font-size: 8.5px;
+    font-weight: 500;
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+}
+
+.slider-ticks span:nth-child(2) {
+    color: rgba(255, 255, 255, 0.26);
+}
+
+/* ── BUTTONS ─────────────────────────────────────────────────────── */
+.btn-row {
+    display: flex;
+    gap: 10px;
+}
+
+.btn {
+    flex: 1;
+    height: 40px;
+    border: none;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.16s ease;
+}
+
+.btn-reset {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    color: rgba(255, 255, 255, 0.48);
+}
+
+.btn-reset:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.24);
+    color: rgba(255, 255, 255, 0.80);
+}
+
+.btn-reset:active {
+    transform: scale(0.96);
+}
+
+.btn-confirm {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.38);
+}
+
+.btn-confirm:hover {
+    filter: brightness(1.12);
+    box-shadow: 0 5px 22px rgba(var(--accent-rgb), 0.54);
+    transform: translateY(-1px);
+}
+
+.btn-confirm:active {
+    transform: scale(0.96) translateY(0);
+    filter: brightness(0.93);
+    box-shadow: 0 2px 10px rgba(var(--accent-rgb), 0.28);
+}
