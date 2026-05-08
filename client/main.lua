@@ -41,68 +41,73 @@ end
 -- Probe: try each hash and verify with GetEntityScale; if that's also
 -- missing, use a bone-position delta as an indirect signal instead.
 local function ProbeScaleNative()
-    if SetEntityScale then
+    -- Always mark ready so the per-tick thread + callbacks aren't stuck
+    local function done(hash, label)
+        _scaleHash  = hash
         _scaleReady = true
-        print('[ScaleM] Scale native: SetEntityScale (builtin) ✓')
+        if hash then
+            print('[ScaleM] Scale native → ' .. (label or tostring(hash)))
+        else
+            print('[ScaleM] !! No working scale native found.')
+            print('[ScaleM] Update FiveM server artifacts: https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/')
+        end
+    end
+
+    if SetEntityScale then
+        done('builtin', 'SetEntityScale (builtin) ✓')
         return
     end
 
     local ped = PlayerPedId()
     while not DoesEntityExist(ped) do Wait(500) ped = PlayerPedId() end
 
-    -- Get a baseline bone position we can compare after applying test scale
-    local boneIdx  = GetEntityBoneIndexByName(ped, 'IK_Head')
-    local bx0, by0, bz0 = GetEntityBoneCoords(ped, boneIdx, false)
-
-    local TEST = 1.35   -- obvious enough to detect a bone-position shift
+    local TEST = 1.35
 
     for _, c in ipairs(HASH_CANDIDATES) do
-        -- Apply test scale
+        -- Apply test scale safely
         pcall(Citizen.InvokeNative, c.hash, ped, TEST * 1.0)
-        Wait(50)   -- let the game engine tick once
+        Wait(50)
 
-        -- Verify method 1: GetEntityScale (if it exists)
+        -- Verify via GetEntityScale if available
         if GetEntityScale then
-            local actual = GetEntityScale(ped)
-            if actual and math.abs(actual - TEST) < 0.05 then
-                _scaleHash  = c.hash
-                _scaleReady = true
-                Citizen.InvokeNative(c.hash, ped, Config.DefaultScale * 1.0)
-                print('[ScaleM] Scale native confirmed via GetEntityScale: ' .. c.label)
+            local ok, actual = pcall(GetEntityScale, ped)
+            if ok and actual and math.abs(actual - TEST) < 0.05 then
+                pcall(Citizen.InvokeNative, c.hash, ped, Config.DefaultScale * 1.0)
+                done(c.hash, c.label .. ' (confirmed via GetEntityScale)')
                 return
             end
         end
 
-        -- Verify method 2: head bone moved upward (ped is taller)
-        local bx1, by1, bz1 = GetEntityBoneCoords(ped, boneIdx, false)
-        if bz1 - bz0 > 0.05 then
-            _scaleHash  = c.hash
-            _scaleReady = true
-            Citizen.InvokeNative(c.hash, ped, Config.DefaultScale * 1.0)
-            print('[ScaleM] Scale native confirmed via bone delta: ' .. c.label)
-            return
+        -- Verify via bone Z-delta if available
+        if GetEntityBoneIndexByName and GetEntityBoneCoords then
+            local okIdx, boneIdx = pcall(GetEntityBoneIndexByName, ped, 'IK_Head')
+            if okIdx and boneIdx and boneIdx >= 0 then
+                local ok0, bx0, by0, bz0 = pcall(GetEntityBoneCoords, ped, boneIdx, false)
+                -- Re-apply then check
+                pcall(Citizen.InvokeNative, c.hash, ped, TEST * 1.0)
+                Wait(50)
+                local ok1, bx1, by1, bz1 = pcall(GetEntityBoneCoords, ped, boneIdx, false)
+                if ok0 and ok1 and bz1 and bz0 and (bz1 - bz0) > 0.04 then
+                    pcall(Citizen.InvokeNative, c.hash, ped, Config.DefaultScale * 1.0)
+                    done(c.hash, c.label .. ' (confirmed via bone delta)')
+                    return
+                end
+            end
         end
     end
 
-    -- Nothing verified – but we still cache the first non-erroring hash
-    -- and rely on the per-tick thread to make it stick if any hash helps
+    -- No verification method available – pick the first hash and trust the
+    -- per-tick thread.  If the hash is a no-op, the server needs updating.
     for _, c in ipairs(HASH_CANDIDATES) do
         local ok = pcall(Citizen.InvokeNative, c.hash, ped, TEST * 1.0)
+        pcall(Citizen.InvokeNative, c.hash, ped, Config.DefaultScale * 1.0)
         if ok then
-            pcall(Citizen.InvokeNative, c.hash, ped, Config.DefaultScale * 1.0)
-            _scaleHash  = c.hash
-            _scaleReady = true
-            print('[ScaleM] Scale native unverified, using best-effort: ' .. c.label)
-            print('[ScaleM] If scale still does not change, update your FiveM server:')
-            print('[ScaleM] https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/')
+            done(c.hash, c.label .. ' (unverified – update artifacts if scale still fails)')
             return
         end
     end
 
-    _scaleHash  = false
-    _scaleReady = true
-    print('[ScaleM] !! No scale native found – server artifacts must be updated.')
-    print('[ScaleM] https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/')
+    done(false, nil)
 end
 
 -- ─────────────────────────────────────────────────────────────────────
