@@ -5,12 +5,25 @@ const BASE_IN = 72;
 // Safe wrapper — GetParentResourceName is injected by FiveM's CEF layer
 function nuiFetch(endpoint, data) {
     let name;
-    try { name = GetParentResourceName(); } catch (_) { name = 'scale'; }
-    return fetch(`https://${name}/${endpoint}`, {
+    try {
+        name = GetParentResourceName();
+    } catch (_) {
+        name = 'scale';
+        console.warn('[ScaleM] GetParentResourceName unavailable, using fallback: scale');
+    }
+    const url = `https://${name}/${endpoint}`;
+    console.log(`[ScaleM] → ${endpoint}  url: ${url}  payload:`, data ?? {});
+    return fetch(url, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify(data ?? {}),
-    }).catch(err => console.error('[ScaleM] NUI fetch failed – restart the resource:', err));
+    }).then(res => {
+        console.log(`[ScaleM] ← ${endpoint}  status: ${res.status}`);
+        return res;
+    }).catch(err => {
+        console.error(`[ScaleM] ✗ fetch failed for "${endpoint}". Resource: "${name}". Error:`, err.message);
+        console.error('[ScaleM] If you see this, do: restart ' + name + '  in your server console');
+    });
 }
 
 let minScale     = 0.806;
@@ -80,6 +93,7 @@ function applyTheme(hex) {
 }
 
 function openMenu(data) {
+    console.log('[ScaleM] openMenu received:', data);
     applyTheme(data.themeColor);
 
     minScale     = data.minScale     ?? 0.806;

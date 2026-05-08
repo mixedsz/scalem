@@ -5,9 +5,7 @@
 :root {
     --accent:     #1A6BFF;
     --accent-rgb: 26, 107, 255;
-    --accent-dim: rgba(26, 107, 255, 0.18);
-    --panel:      rgba(7, 11, 23, 0.82);
-    --surface:    rgba(255, 255, 255, 0.04);
+    --surface:    rgba(255, 255, 255, 0.045);
     --border:     rgba(255, 255, 255, 0.07);
     --border-hi:  rgba(255, 255, 255, 0.12);
     --text-1:     #ffffff;
@@ -33,18 +31,29 @@ html, body {
     top: 50%;
     transform: translateY(-50%) translateX(0);
 
-    width: 338px;
-    background: var(--panel);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    width: 352px;
+
+    /*
+     * backdrop-filter removed intentionally.
+     * FiveM's embedded Chromium (CEF) renders the blur compositing layer
+     * as a solid black rectangle instead of transparent, creating the
+     * "black block" behind the UI. A rich solid-glass background is used
+     * instead — looks identical and has zero compositing side-effects.
+     */
+    background: linear-gradient(
+        150deg,
+        rgba(14, 19, 40, 0.97) 0%,
+        rgba(8,  12, 26, 0.97) 100%
+    );
 
     border-radius: var(--r);
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, 0.09);
     box-shadow:
-        inset 0 1px 0 var(--border-hi),
-        inset 1px 0 0 rgba(255,255,255,0.04),
-        0 32px 80px rgba(0, 0, 0, 0.65),
-        0 0 0 1px rgba(0, 0, 0, 0.2);
+        inset 0 1px 0  rgba(255, 255, 255, 0.10),
+        inset 1px 0 0  rgba(255, 255, 255, 0.04),
+        0 28px 56px    rgba(0, 0, 0, 0.72),
+        0 0 0 1px      rgba(0, 0, 0, 0.25),
+        0 0 64px       rgba(var(--accent-rgb), 0.05);
 
     overflow: hidden;
     user-select: none;
@@ -94,7 +103,7 @@ html, body {
 .inner {
     position: relative;
     z-index: 1;
-    padding: 24px 22px 22px;
+    padding: 26px 24px 24px;
 }
 
 /* ─── HEADER ─────────────────────────────────────────────────────────── */

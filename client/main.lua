@@ -7,14 +7,23 @@ local weaponNotifCooldown = false
 --  SCALE APPLICATION
 -- ─────────────────────────────────────────────────────────────────────
 local function ApplyScale(ped, scale)
-    if not DoesEntityExist(ped) then return end
+    if not DoesEntityExist(ped) then
+        print('[ScaleM] ApplyScale: ped does not exist, skipping')
+        return
+    end
+    print(('[ScaleM] ApplyScale → scale=%.3f  SetEntityScale=%s'):format(scale, type(SetEntityScale)))
     if SetEntityScale then
         SetEntityScale(ped, scale)
+        print('[ScaleM] ApplyScale: SetEntityScale called successfully')
     else
-        -- Backtick hash syntax is resolved by FiveM at compile time
-        pcall(function()
+        print('[ScaleM] ApplyScale: SetEntityScale is nil, trying Citizen.InvokeNative fallback')
+        local ok, err = pcall(function()
             Citizen.InvokeNative(`SET_ENTITY_SCALE`, ped, scale)
         end)
+        print(('[ScaleM] ApplyScale: InvokeNative result ok=%s err=%s'):format(tostring(ok), tostring(err)))
+        if not ok then
+            print('[ScaleM] !! Both scale methods failed. Update your FiveM server artifacts: https://runtime.fivem.net/artifacts/fivem/')
+        end
     end
 end
 
@@ -101,14 +110,18 @@ end)
 -- ─────────────────────────────────────────────────────────────────────
 
 RegisterNUICallback('confirm', function(data, cb)
-    -- Release focus and respond immediately so mouse is NEVER stuck
     isMenuOpen = false
     SetNuiFocus(false, false)
     cb({})
 
     local scale = tonumber(data.scale)
-    if not scale then return end
+    print(('[ScaleM] NUI confirm received: raw=%s parsed=%s'):format(tostring(data.scale), tostring(scale)))
+    if not scale then
+        print('[ScaleM] confirm: invalid scale value, aborting')
+        return
+    end
     scale = math.max(Config.MinScale, math.min(Config.MaxScale, scale))
+    print(('[ScaleM] confirm: applying scale=%.3f'):format(scale))
     currentScale = scale
     savedScale   = scale
 
