@@ -20,7 +20,8 @@ html, body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background: transparent;
+    background: transparent !important;
+    background-color: transparent !important;
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
 }
@@ -32,7 +33,7 @@ html, body {
     top: 50%;
     transform: translateY(-50%) translateX(0);
 
-    width: 308px;
+    width: 338px;
     background: var(--panel);
     backdrop-filter: blur(40px) saturate(180%);
     -webkit-backdrop-filter: blur(40px) saturate(180%);
@@ -93,7 +94,7 @@ html, body {
 .inner {
     position: relative;
     z-index: 1;
-    padding: 22px 20px 20px;
+    padding: 24px 22px 22px;
 }
 
 /* ─── HEADER ─────────────────────────────────────────────────────────── */
@@ -167,7 +168,7 @@ html, body {
 }
 
 .height-imperial {
-    font-size: 66px;
+    font-size: 72px;
     font-weight: 900;
     line-height: 0.92;
     letter-spacing: -4px;

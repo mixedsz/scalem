@@ -11,9 +11,10 @@ local function ApplyScale(ped, scale)
     if SetEntityScale then
         SetEntityScale(ped, scale)
     else
-        -- Fallback for older FiveM server artifacts
-        -- Update to latest artifacts for best results: https://runtime.fivem.net/artifacts/fivem/
-        pcall(Citizen.InvokeNative, 0x25D59F9, ped, scale)
+        -- Backtick hash syntax is resolved by FiveM at compile time
+        pcall(function()
+            Citizen.InvokeNative(`SET_ENTITY_SCALE`, ped, scale)
+        end)
     end
 end
 

@@ -1,6 +1,17 @@
 'use strict';
 
-const BASE_IN = 72; // 6'0" default ped height
+const BASE_IN = 72;
+
+// Safe wrapper — GetParentResourceName is injected by FiveM's CEF layer
+function nuiFetch(endpoint, data) {
+    let name;
+    try { name = GetParentResourceName(); } catch (_) { name = 'scale'; }
+    return fetch(`https://${name}/${endpoint}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(data ?? {}),
+    }).catch(err => console.error('[ScaleM] NUI fetch failed – restart the resource:', err));
+}
 
 let minScale     = 0.806;
 let maxScale     = 1.194;
@@ -108,20 +119,12 @@ slider.addEventListener('input', function () {
 
 // ── Buttons ───────────────────────────────────────────────────────────
 document.getElementById('btn-confirm').addEventListener('click', () => {
-    fetch(`https://${GetParentResourceName()}/confirm`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ scale: currentScale }),
-    });
+    nuiFetch('confirm', { scale: currentScale });
     closeMenu();
 });
 
 document.getElementById('btn-reset').addEventListener('click', () => {
-    fetch(`https://${GetParentResourceName()}/reset`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({}),
-    });
+    nuiFetch('reset');
     closeMenu();
 });
 
@@ -136,11 +139,7 @@ window.addEventListener('message', (event) => {
 // ── Escape ────────────────────────────────────────────────────────────
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        fetch(`https://${GetParentResourceName()}/close`, {
-            method:  'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({}),
-        });
+        nuiFetch('close');
         closeMenu();
     }
 });

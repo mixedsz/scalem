@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scale Menu</title>
+
+    <!-- Must be inline so the page is never black, even for one frame -->
+    <style>
+        html, body {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+    </style>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -12,7 +21,6 @@
 
     <div id="scale-menu" class="hidden">
 
-        <!-- Accent line at top -->
         <div class="top-accent"></div>
 
         <div class="inner">
@@ -69,7 +77,7 @@
                 <button class="btn btn-confirm" id="btn-confirm">CONFIRM</button>
             </div>
 
-        </div><!-- .inner -->
+        </div>
     </div>
 
     <script src="script.js"></script>
