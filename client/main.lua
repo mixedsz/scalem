@@ -8,7 +8,13 @@ local weaponNotifCooldown = false
 -- ─────────────────────────────────────────────────────────────────────
 local function ApplyScale(ped, scale)
     if not DoesEntityExist(ped) then return end
-    SetEntityScale(ped, scale)
+    if SetEntityScale then
+        SetEntityScale(ped, scale)
+    else
+        -- Fallback for older FiveM server artifacts
+        -- Update to latest artifacts for best results: https://runtime.fivem.net/artifacts/fivem/
+        pcall(Citizen.InvokeNative, 0x25D59F9, ped, scale)
+    end
 end
 
 -- ─────────────────────────────────────────────────────────────────────
@@ -94,37 +100,40 @@ end)
 -- ─────────────────────────────────────────────────────────────────────
 
 RegisterNUICallback('confirm', function(data, cb)
-    local scale = tonumber(data.scale)
-    if not scale then cb({}) return end
-    scale = math.max(Config.MinScale, math.min(Config.MaxScale, scale))
-
-    currentScale = scale
-    savedScale   = scale
-    isMenuOpen   = false
-
-    ApplyScale(PlayerPedId(), scale)
-    TriggerServerEvent('ScaleM:SaveScale', scale)
+    -- Release focus and respond immediately so mouse is NEVER stuck
+    isMenuOpen = false
     SetNuiFocus(false, false)
     cb({})
+
+    local scale = tonumber(data.scale)
+    if not scale then return end
+    scale = math.max(Config.MinScale, math.min(Config.MaxScale, scale))
+    currentScale = scale
+    savedScale   = scale
+
+    pcall(ApplyScale, PlayerPedId(), scale)
+    TriggerServerEvent('ScaleM:SaveScale', scale)
 end)
 
 RegisterNUICallback('reset', function(_, cb)
-    currentScale = Config.DefaultScale
-    savedScale   = Config.DefaultScale
-    isMenuOpen   = false
-
-    ApplyScale(PlayerPedId(), Config.DefaultScale)
-    TriggerServerEvent('ScaleM:ResetScale')
+    isMenuOpen = false
     SetNuiFocus(false, false)
     cb({})
+
+    currentScale = Config.DefaultScale
+    savedScale   = Config.DefaultScale
+    pcall(ApplyScale, PlayerPedId(), Config.DefaultScale)
+    TriggerServerEvent('ScaleM:ResetScale')
 end)
 
 RegisterNUICallback('close', function(_, cb)
-    isMenuOpen   = false
-    currentScale = savedScale
-    ApplyScale(PlayerPedId(), savedScale)
+    isMenuOpen = false
     SetNuiFocus(false, false)
     cb({})
+
+    local revert = savedScale
+    currentScale = revert
+    pcall(ApplyScale, PlayerPedId(), revert)
 end)
 
 -- ─────────────────────────────────────────────────────────────────────

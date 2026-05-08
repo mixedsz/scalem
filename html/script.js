@@ -1,29 +1,27 @@
 'use strict';
 
-// GTA V default ped height: 6'0" = 72 inches
-const BASE_IN = 72;
+const BASE_IN = 72; // 6'0" default ped height
 
 let minScale     = 0.806;
 let maxScale     = 1.194;
 let defaultScale = 1.0;
 let currentScale = 1.0;
 
-const menu       = document.getElementById('scale-menu');
-const slider     = document.getElementById('height-slider');
-const impEl      = document.getElementById('height-imperial');
-const metEl      = document.getElementById('height-metric');
-const scaleEl    = document.getElementById('stat-scale');
-const diffEl     = document.getElementById('stat-diff');
-const tickMinEl  = document.getElementById('tick-min');
-const tickMidEl  = document.getElementById('tick-mid');
-const tickMaxEl  = document.getElementById('tick-max');
-const rangeLabel = document.getElementById('slider-range-label');
-const defTick    = document.getElementById('default-tick');
+const menu      = document.getElementById('scale-menu');
+const slider    = document.getElementById('height-slider');
+const impEl     = document.getElementById('height-imperial');
+const metEl     = document.getElementById('height-metric');
+const scaleEl   = document.getElementById('stat-scale');
+const diffEl    = document.getElementById('stat-diff');
+const tickMinEl = document.getElementById('tick-min');
+const tickMidEl = document.getElementById('tick-mid');
+const tickMaxEl = document.getElementById('tick-max');
+const rangeEl   = document.getElementById('slider-range');
+const defTick   = document.getElementById('def-tick');
 
-// ── Conversions ──────────────────────────────────────────────────────
-function toInches(scale) {
-    return scale * BASE_IN;
-}
+// ── Conversions ───────────────────────────────────────────────────────
+function toInches(scale)   { return scale * BASE_IN; }
+function toCm(totalIn)     { return Math.round(totalIn * 2.54); }
 
 function fmtImperial(totalIn) {
     const ft   = Math.floor(totalIn / 12);
@@ -32,19 +30,10 @@ function fmtImperial(totalIn) {
     return `${ft}'${inch}"`;
 }
 
-function toCm(totalIn) {
-    return Math.round(totalIn * 2.54);
-}
+function scaleToSlider(s) { return ((s - minScale) / (maxScale - minScale)) * 1000; }
+function sliderToScale(v) { return minScale + (v / 1000) * (maxScale - minScale); }
 
-function scaleToSlider(scale) {
-    return ((scale - minScale) / (maxScale - minScale)) * 1000;
-}
-
-function sliderToScale(val) {
-    return minScale + (val / 1000) * (maxScale - minScale);
-}
-
-// ── Display update ───────────────────────────────────────────────────
+// ── Display update ────────────────────────────────────────────────────
 function updateDisplay(scale) {
     currentScale = scale;
 
@@ -58,44 +47,44 @@ function updateDisplay(scale) {
     scaleEl.textContent = scale.toFixed(2) + '×';
     diffEl.textContent  = (diffIn >= 0 ? '+' : '') + diffIn + '"';
 
-    // Update slider fill gradient via CSS custom property
     slider.style.setProperty('--fill', progress.toFixed(2) + '%');
     slider.value = Math.round(scaleToSlider(scale));
 
-    // Brief glow pulse on the large number
-    impEl.classList.remove('pulse');
-    void impEl.offsetWidth; // reflow to restart animation
-    impEl.classList.add('pulse');
-    setTimeout(() => impEl.classList.remove('pulse'), 200);
+    // Brief glow pulse on the height number
+    impEl.classList.remove('glow');
+    void impEl.offsetWidth;
+    impEl.classList.add('glow');
+    setTimeout(() => impEl.classList.remove('glow'), 180);
 }
 
-// ── Open / Close ─────────────────────────────────────────────────────
+// ── Open / Close ──────────────────────────────────────────────────────
+function applyTheme(hex) {
+    if (!hex) return;
+    const h = hex.replace('#', '');
+    const r = parseInt(h.slice(0,2), 16);
+    const g = parseInt(h.slice(2,4), 16);
+    const b = parseInt(h.slice(4,6), 16);
+    document.documentElement.style.setProperty('--accent',     hex);
+    document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
+}
+
 function openMenu(data) {
-    // Apply theme colour
-    if (data.themeColor) {
-        const hex = data.themeColor.replace('#', '');
-        const r   = parseInt(hex.slice(0, 2), 16);
-        const g   = parseInt(hex.slice(2, 4), 16);
-        const b   = parseInt(hex.slice(4, 6), 16);
-        document.documentElement.style.setProperty('--accent',     data.themeColor);
-        document.documentElement.style.setProperty('--accent-rgb', `${r}, ${g}, ${b}`);
-    }
+    applyTheme(data.themeColor);
 
     minScale     = data.minScale     ?? 0.806;
     maxScale     = data.maxScale     ?? 1.194;
     defaultScale = data.defaultScale ?? 1.0;
 
-    // Tick labels derived from actual scale range
     const minIn = toInches(minScale);
     const defIn = toInches(defaultScale);
     const maxIn = toInches(maxScale);
 
-    tickMinEl.textContent  = fmtImperial(minIn);
-    tickMidEl.textContent  = fmtImperial(defIn) + ' avg';
-    tickMaxEl.textContent  = fmtImperial(maxIn);
-    rangeLabel.textContent = fmtImperial(minIn) + ' — ' + fmtImperial(maxIn);
+    tickMinEl.textContent = fmtImperial(minIn);
+    tickMidEl.textContent = fmtImperial(defIn) + ' avg';
+    tickMaxEl.textContent = fmtImperial(maxIn);
+    rangeEl.textContent   = fmtImperial(minIn) + ' — ' + fmtImperial(maxIn);
 
-    // Position the default-height tick mark
+    // Position default-height notch
     const defPct = ((defaultScale - minScale) / (maxScale - minScale)) * 100;
     defTick.style.left = defPct.toFixed(2) + '%';
 
@@ -109,15 +98,15 @@ function openMenu(data) {
 
 function closeMenu() {
     menu.classList.remove('visible');
-    setTimeout(() => menu.classList.add('hidden'), 340);
+    setTimeout(() => menu.classList.add('hidden'), 360);
 }
 
-// ── Slider ───────────────────────────────────────────────────────────
+// ── Slider ────────────────────────────────────────────────────────────
 slider.addEventListener('input', function () {
     updateDisplay(sliderToScale(parseFloat(this.value)));
 });
 
-// ── Buttons ──────────────────────────────────────────────────────────
+// ── Buttons ───────────────────────────────────────────────────────────
 document.getElementById('btn-confirm').addEventListener('click', () => {
     fetch(`https://${GetParentResourceName()}/confirm`, {
         method:  'POST',
@@ -136,7 +125,7 @@ document.getElementById('btn-reset').addEventListener('click', () => {
     closeMenu();
 });
 
-// ── Message handler (from Lua SendNUIMessage) ────────────────────────
+// ── Message handler ───────────────────────────────────────────────────
 window.addEventListener('message', (event) => {
     const data = event.data;
     if (!data?.type) return;
@@ -144,7 +133,7 @@ window.addEventListener('message', (event) => {
     if (data.type === 'closeMenu') closeMenu();
 });
 
-// ── Escape key ───────────────────────────────────────────────────────
+// ── Escape ────────────────────────────────────────────────────────────
 window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         fetch(`https://${GetParentResourceName()}/close`, {

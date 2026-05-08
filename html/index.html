@@ -5,61 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scale Menu</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="scale-menu" class="hidden">
 
-        <!-- Header -->
-        <div class="menu-header">
-            <span class="header-label">CHARACTER SCALE</span>
-            <p class="header-sub">Adjust your character's height</p>
-        </div>
+        <!-- Accent line at top -->
+        <div class="top-accent"></div>
 
-        <!-- Large Height Display -->
-        <div class="height-display">
-            <div class="height-imperial" id="height-imperial">6'0"</div>
-            <div class="height-metric"   id="height-metric">183 cm</div>
-        </div>
+        <div class="inner">
 
-        <!-- Stats Row -->
-        <div class="stats-row">
-            <div class="stat-box">
-                <div class="stat-value" id="stat-scale">1.00×</div>
-                <div class="stat-label">SCALE FACTOR</div>
+            <!-- Header -->
+            <div class="header">
+                <div class="header-top">
+                    <span class="header-dot"></span>
+                    <span class="header-title">CHARACTER SCALE</span>
+                </div>
+                <p class="header-sub">Adjust your character's height</p>
             </div>
-            <div class="stat-sep"></div>
-            <div class="stat-box">
-                <div class="stat-value" id="stat-diff">+0"</div>
-                <div class="stat-label">VS. DEFAULT</div>
-            </div>
-        </div>
 
-        <!-- Slider -->
-        <div class="slider-section">
-            <div class="slider-header">
-                <span class="slider-label">HEIGHT</span>
-                <span class="slider-range-label" id="slider-range-label">4'10" — 7'2"</span>
+            <!-- Height Readout -->
+            <div class="height-block">
+                <div class="height-eyebrow">CURRENT HEIGHT</div>
+                <div class="height-glow"></div>
+                <div class="height-imperial" id="height-imperial">6'0"</div>
+                <div class="height-metric"   id="height-metric">183 cm</div>
             </div>
-            <div class="slider-wrap">
-                <input type="range" id="height-slider" min="0" max="1000" step="1" value="500">
-                <div class="default-tick" id="default-tick"></div>
-            </div>
-            <div class="slider-ticks">
-                <span id="tick-min">4'10"</span>
-                <span id="tick-mid">6'0" avg</span>
-                <span id="tick-max">7'2"</span>
-            </div>
-        </div>
 
-        <!-- Buttons -->
-        <div class="btn-row">
-            <button class="btn btn-reset"   id="btn-reset">RESET</button>
-            <button class="btn btn-confirm" id="btn-confirm">CONFIRM</button>
-        </div>
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-scale">1.00×</div>
+                    <div class="stat-lbl">SCALE FACTOR</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-val" id="stat-diff">+0"</div>
+                    <div class="stat-lbl">VS. DEFAULT</div>
+                </div>
+            </div>
 
+            <!-- Slider -->
+            <div class="slider-section">
+                <div class="slider-header">
+                    <span class="slider-lbl">HEIGHT</span>
+                    <span class="slider-range" id="slider-range">4'10" — 7'2"</span>
+                </div>
+                <div class="slider-wrap">
+                    <input type="range" id="height-slider" min="0" max="1000" step="1" value="500">
+                    <div class="def-tick" id="def-tick"></div>
+                </div>
+                <div class="slider-ticks">
+                    <span id="tick-min">4'10"</span>
+                    <span id="tick-mid">6'0" avg</span>
+                    <span id="tick-max">7'2"</span>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-row">
+                <button class="btn btn-reset"   id="btn-reset">RESET</button>
+                <button class="btn btn-confirm" id="btn-confirm">CONFIRM</button>
+            </div>
+
+        </div><!-- .inner -->
     </div>
 
     <script src="script.js"></script>
